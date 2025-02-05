@@ -1,42 +1,52 @@
-# Task 1: Data Ingestion and Preprocessing for Ethiopian-Based Telegram E-Commerce Channels
+# Task 1 - Data Analysis and Preprocessing
 
-## Overview
-In this task, we are focusing on ingesting and preprocessing message data from Ethiopian-based Telegram e-commerce channels. The goal is to prepare the data for further analysis by normalizing, cleaning, and structuring the text, especially handling Amharic linguistic features.
+## Objective
+The objective of Task 1 is to perform comprehensive data analysis and preprocessing on the given datasets. This includes handling missing values, cleaning the data, performing exploratory data analysis (EDA), merging datasets for geolocation analysis, and generating meaningful features for model building.
 
-## Steps Involved
+## Deliverables
 
-### 1. Identify Relevant Channels
-- Identify at least 5 relevant Ethiopian-based Telegram channels related to e-commerce.
-- Channels must contain messages related to products, services, prices, and locations.
+### 1. Handle Missing Values
+- **Impute or Drop Missing Values**: Identify and address missing values in the dataset by either imputing or removing the rows/columns with missing data based on the context and requirements.
 
-### 2. Data Ingestion System
-- Implement a system to ingest messages from the selected Telegram channels.
-- The system should extract raw messages, along with any associated metadata like timestamps, sender details, and other relevant information.
+### 2. Data Cleaning
+- **Remove Duplicates**: Ensure that the dataset does not contain any duplicate entries to maintain data integrity.
+- **Correct Data Types**: Check for columns with incorrect data types and correct them (e.g., converting string representations of numbers to numerical data types).
 
-### 3. Text Preprocessing
-- Tokenize the Amharic text data to break it into words or meaningful chunks.
-- Normalize the text, handling special characters, punctuation, and case normalization.
-- Handle Amharic linguistic features such as morphology, inflection, and syntax.
+### 3. Exploratory Data Analysis (EDA)
+- **Univariate Analysis**: Perform a detailed analysis of individual features to understand their distribution and detect any anomalies.
+- **Bivariate Analysis**: Explore relationships between pairs of features to uncover potential correlations and insights.
 
-### 4. Data Cleaning
-- Remove irrelevant or redundant information from the messages (e.g., advertisements, links, or emojis).
-- Filter out noise that does not contribute to the analysis of product-related content.
+### 4. Merge Datasets for Geolocation Analysis
+- **Convert IP Addresses to Integer Format**: Convert IP addresses in the dataset to integer format to facilitate efficient processing.
+- **Merge Datasets**: Combine the `Fraud_Data.csv` with `IpAddress_to_Country.csv` to enrich the data with geolocation information based on IP addresses.
 
-### 5. Data Structuring
-- Structure the preprocessed data in a format suitable for further analysis.
-- Organize the data into categories such as product names, prices, locations, and other relevant entities.
+### 5. Feature Engineering
+- **Transaction Frequency and Velocity**: Create new features based on transaction frequency and velocity for `Fraud_Data.csv` to enhance predictive power.
+- **Time-Based Features**:
+  - `hour_of_day`: Extract the hour of the day from transaction timestamps.
+  - `day_of_week`: Extract the day of the week from transaction timestamps.
 
-### 6. Data Storage
-- Store the preprocessed data in a structured format (e.g., CSV, JSON, or database) for easy access and further analysis.
+### 6. Normalization and Scaling
+- Normalize and scale the numerical features in the dataset to ensure that models do not become biased toward any feature with a larger scale.
 
-## Tools and Libraries
-- Python libraries such as `pandas`, `nltk`, and `spacy` for text processing and data handling.
-- Telegram API for data extraction.
-- Custom preprocessing functions to handle Amharic text.
+### 7. Encode Categorical Features
+- Convert categorical features into numerical representations using appropriate encoding techniques (e.g., One-Hot Encoding or Label Encoding) to make them suitable for model training.
 
-## Expected Output
-The final output will be a clean, structured dataset containing relevant product-related information from the Telegram channels. This dataset will serve as the foundation for subsequent tasks such as Named Entity Recognition (NER) and further analysis.
+## Steps Taken in the Notebook:
+1. **Data Loading**: Import the necessary libraries and load the datasets.
+2. **Data Preprocessing**: Handle missing values, clean data, and convert IP addresses.
+3. **Exploratory Data Analysis (EDA)**: Conduct univariate and bivariate analysis to understand the data.
+4. **Feature Engineering**: Generate transaction-related features, time-based features, and merge geolocation data.
+5. **Normalization and Scaling**: Apply scaling techniques to standardize numerical features.
+6. **Encode Categorical Features**: Perform encoding on categorical columns for model readiness.
 
-## Future Work
-- Model Building , Training and Evaluation as part of Task 2.
-- Implementing additional data cleaning or feature extraction based on the analysis requirements.
+## Tools Used
+- **Pandas**: For data manipulation and analysis.
+- **NumPy**: For numerical operations.
+- **Matplotlib & Seaborn**: For data visualization.
+- **Scikit-learn**: For data preprocessing (scaling, encoding).
+- **IP2Location or other libraries**: For IP-to-geolocation conversion.
+
+## Expected Outcomes
+- A clean and preprocessed dataset ready for model training.
+- Feature-rich dataset with additional engineered features such as time-based attributes and geolocation information.
