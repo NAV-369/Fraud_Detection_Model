@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/zelalemtegene/Documents/Week-8/notebooks/mlruns/0/f03f1797b10b4a289223d2b7949969f9/artifacts
+end_time: 1739237293671
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: f03f1797b10b4a289223d2b7949969f9
+run_name: adventurous-pig-789
+run_uuid: f03f1797b10b4a289223d2b7949969f9
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1739237293665
+status: 4
+tags: []
+user_id: zelalemtegene

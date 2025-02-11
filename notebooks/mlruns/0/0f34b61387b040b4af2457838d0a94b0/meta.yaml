@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/zelalemtegene/Documents/Week-8/notebooks/mlruns/0/0f34b61387b040b4af2457838d0a94b0/artifacts
+end_time: 1739237225074
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 0f34b61387b040b4af2457838d0a94b0
+run_name: charming-zebra-100
+run_uuid: 0f34b61387b040b4af2457838d0a94b0
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1739237225068
+status: 4
+tags: []
+user_id: zelalemtegene
