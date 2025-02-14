@@ -4,3 +4,8 @@ matplotlib
 seaborn
 scikit-learn
 datetime 
+flask
+flask-restful
+joblib
+requests
+gunicorn
