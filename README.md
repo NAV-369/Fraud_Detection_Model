@@ -1,71 +1,120 @@
-# Task 3: Feature Engineering for Credit Risk Project
+Here’s the README in pure Markdown format with # for headers and other markdown syntax:
 
-# Objective
-# The objective of Task 3 is to create meaningful features for a credit risk prediction model. 
-# This task involves aggregating existing features, extracting new ones, encoding categorical variables, 
-# handling missing values, and normalizing/standardizing numerical features. 
-# These processed features will be used to train the model for credit risk prediction.
+# Task 4: Model Serving and API Deployment
 
-# Steps and Deliverables
+## Overview
 
-## 1. Aggregate Features
-# - Combine existing features to create new aggregate features that can improve the model's predictive power.
-# Examples:
-# - Total credit balance across accounts.
-# - Average monthly spending or income.
-# - Count of missed payments or credit inquiries.
+In this task, we focus on deploying a machine learning model for fraud detection via a REST API. The model is trained using the `RandomForestClassifier` and is served using Flask within a Docker container. This allows real-time prediction by providing input features via a POST request.
 
-# Example code to create aggregate features:
-# X_train['total_balance'] = X_train[['credit_balance', 'loan_balance']].sum(axis=1)
+## Steps Involved
 
-## 2. Extract New Features
-# - Identify new features based on domain knowledge or exploratory analysis.
-# Examples:
-# - Duration of the relationship with the bank or credit institution.
-# - Frequency of recent large transactions.
-# - Ratio of credit utilization (credit balance vs. limit).
+### 1. **Model Training**
 
-# Example code to create new features:
-# X_train['credit_utilization'] = X_train['credit_balance'] / X_train['credit_limit']
+Before deploying the model, ensure that you have a trained model saved in a `.pkl` file. The model used in this task is `random_forest_fraud.pkl`, and it should be trained using your dataset and saved in the appropriate location.
 
-## 3. Encode Categorical Variables
-# - Categorical variables should be transformed into numerical representations.
-# Possible methods include:
-# - One-hot encoding for nominal categories.
-# - Label encoding for ordinal categories.
+### 2. **Flask API Setup**
 
-# Example code to encode categorical variables:
-# from sklearn.preprocessing import OneHotEncoder
-# encoder = OneHotEncoder(sparse=False)
-# X_train_encoded = encoder.fit_transform(X_train[['account_type']])
+Flask will be used to create a simple web API. The API will accept POST requests at the `/predict` endpoint and respond with fraud prediction results. The model is loaded from the saved `.pkl` file when the API is started.
 
-## 4. Handle Missing Values
-# - Address missing data by using appropriate techniques:
-# - Imputation (mean, median, or mode).
-# - Drop missing values if too many records are incomplete.
-# - Use domain-specific techniques when applicable.
+#### Flask API Code:
 
-# Example code to handle missing values:
-# from sklearn.impute import SimpleImputer
-# imputer = SimpleImputer(strategy='mean')
-# X_train_imputed = imputer.fit_transform(X_train)
+```python
+from flask import Flask, request, jsonify
+import joblib
+import numpy as np
 
-## 5. Normalization/Standardization
-# - Normalize or standardize numerical features to ensure they are on a similar scale:
-# - Normalization: Scale features to a [0, 1] range.
-# - Standardization: Scale features to have zero mean and unit variance.
+# Load the trained model
+model = joblib.load("random_forest_fraud.pkl")
 
-# Example code to standardize features:
-# from sklearn.preprocessing import StandardScaler
-# scaler = StandardScaler()
-# X_train_scaled = scaler.fit_transform(X_train[['credit_balance', 'loan_balance']])
+app = Flask(__name__)
 
-## 6. Feature Selection (Optional)
-# - Use techniques such as mutual information, recursive feature elimination, or feature importance from models 
-# (e.g., tree-based models) to select the most important features for the model.
+@app.route('/predict', methods=['POST'])
+def predict():
+    try:
+        data = request.get_json()  # Get the input data
+        features = np.array(data["features"]).reshape(1, -1)  # Prepare features for prediction
+        prediction = model.predict(features)  # Get prediction
+        return jsonify({"fraud_prediction": int(prediction[0])})  # Return the result as JSON
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
-# Example code for feature selection:
-# from sklearn.feature_selection import SelectKBest, mutual_info_classif
-# selector = SelectKBest(mutual_info_classif, k='all')
-# X_train_selected = selector.fit_transform(X_train, y_train)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5001, debug=True)
 
+3. Docker Setup
+
+The Flask app is packaged within a Docker container for easy deployment. Below is the Dockerfile that sets up the environment and starts the API server.
+
+Dockerfile:
+
+# Use Python as the base image
+FROM python:3.8-slim
+
+# Set working directory in the container
+WORKDIR /app
+
+# Copy all files from the current directory to the /app directory in the container
+COPY . .
+
+# Install dependencies
+RUN pip install -r requirements.txt
+
+# Expose port 5001 for the Flask API
+EXPOSE 5001
+
+# Run the Flask API when the container starts
+CMD ["python", "serve_model.py"]
+
+4. Building and Running Docker Container
+
+After creating the Dockerfile, build the Docker image using the following command:
+
+docker build -t fraud-detection-model .
+
+Once the build is successful, run the container using:
+
+docker run -p 5001:5001 fraud-detection-model
+
+This starts the Flask server inside the Docker container, exposing port 5001 for external access.
+
+5. Testing the API
+
+To test the API, you can send a POST request from another Python script or tool like Postman or cURL.
+
+Example Python Test Script (API_test.py):
+
+import requests
+
+url = "http://127.0.0.1:5001/predict"
+data = {"features": [0.1, 1.2, 3.4, 5.6]}  # Adjust based on your model's expected input format
+response = requests.post(url, json=data)
+print(response.json())
+
+6. Common Issues and Troubleshooting
+	•	Port Conflicts: Ensure that port 5001 is not being used by another application. If necessary, change the port in both Dockerfile and API client script.
+	•	Model Not Loading Properly: Ensure that the model file random_forest_fraud.pkl is in the correct location and can be loaded without issues.
+	•	API Not Responding: Check the Flask app logs in the Docker container to ensure it’s running correctly and processing requests.
+
+7. Conclusion
+
+With the Docker container running, you can send requests to the API for real-time fraud detection predictions. The model is loaded dynamically when the API starts, and you can scale and deploy the container as needed.
+
+Requirements
+	•	Python 3.8+
+	•	Flask
+	•	scikit-learn
+	•	joblib
+	•	Docker
+
+Requirements File (requirements.txt):
+
+flask
+scikit-learn
+joblib
+
+Next Steps
+	•	Explore how to improve model performance or update it periodically.
+	•	Implement logging and monitoring for the API.
+	•	Deploy the API to a cloud platform for scalability.
+
+This Markdown will properly render the headings, code blocks, and sections in a readable way in any Jupyter notebook or Markdown renderer.
