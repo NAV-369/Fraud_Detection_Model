@@ -1,120 +1,176 @@
-Here’s the README in pure Markdown format with # for headers and other markdown syntax:
+# Fraud Detection Project README
 
-# Task 4: Model Serving and API Deployment
+## Business Objective: Business Need
 
-## Overview
+You are a data scientist at **Adey Innovations Inc.**, a top company in the financial technology sector. Your company focuses on solutions for **e-commerce** and **banking**. Your task is to improve the detection of **fraud cases** for **e-commerce transactions** and **bank credit transactions**. This project aims to create **accurate** and **strong fraud detection models** that handle the unique challenges of both types of transaction data. It also includes using **geolocation analysis** and **transaction pattern recognition** to improve detection.
 
-In this task, we focus on deploying a machine learning model for fraud detection via a REST API. The model is trained using the `RandomForestClassifier` and is served using Flask within a Docker container. This allows real-time prediction by providing input features via a POST request.
+Good fraud detection greatly improves **transaction security**. By using **advanced machine learning models** and **detailed data analysis**, Adey Innovations Inc. can spot fraudulent activities more accurately. This helps prevent **financial losses** and builds **trust** with customers and financial institutions. A well-designed fraud detection system also makes **real-time monitoring** and **reporting** more efficient, allowing businesses to act quickly and reduce risks.
 
-## Steps Involved
+### Project Goals
+This project will involve:
 
-### 1. **Model Training**
+- **Analyzing** and **preprocessing** transaction data.
+- **Creating** and **engineering features** that help identify fraud patterns.
+- **Building** and **training** machine learning models to detect fraud.
+- **Evaluating** model performance and making necessary improvements.
+- **Deploying** the models for real-time fraud detection and setting up monitoring for continuous improvement.
 
-Before deploying the model, ensure that you have a trained model saved in a `.pkl` file. The model used in this task is `random_forest_fraud.pkl`, and it should be trained using your dataset and saved in the appropriate location.
+---
 
-### 2. **Flask API Setup**
+## Project Tasks
 
-Flask will be used to create a simple web API. The API will accept POST requests at the `/predict` endpoint and respond with fraud prediction results. The model is loaded from the saved `.pkl` file when the API is started.
+### Task 1: Data Collection and Initial Analysis
 
-#### Flask API Code:
+#### **Objective**
+Gather and explore the transaction dataset to understand its structure and contents.
 
-```python
-from flask import Flask, request, jsonify
-import joblib
-import numpy as np
+#### **Steps**
+1. **Data Source**: Obtain the dataset `fraud_data.csv`, located in the `data/` folder, containing e-commerce transaction records.
+2. **Initial Exploration**:
+   - Load the dataset using pandas: `df = pd.read_csv('data/fraud_data.csv')`.
+   - Inspect columns: `user_id`, `signup_time`, `purchase_time`, `purchase_value`, `device_id`, `source`, `browser`, `sex`, `age`, `ip_address`, `class`.
+   - Check for missing values and data types.
+3. **Summary**:
+   - `class` column indicates **fraud (1)** or **non-fraud (0)**.
+   - `purchase_time` and `signup_time` are timestamps for pattern analysis.
+   - `ip_address` can be used for geolocation.
 
-# Load the trained model
-model = joblib.load("random_forest_fraud.pkl")
+#### **Output**
+- A preliminary report on dataset characteristics (e.g., number of transactions, fraud rate).
 
-app = Flask(__name__)
+---
 
-@app.route('/predict', methods=['POST'])
-def predict():
-    try:
-        data = request.get_json()  # Get the input data
-        features = np.array(data["features"]).reshape(1, -1)  # Prepare features for prediction
-        prediction = model.predict(features)  # Get prediction
-        return jsonify({"fraud_prediction": int(prediction[0])})  # Return the result as JSON
-    except Exception as e:
-        return jsonify({"error": str(e)})
+### Task 2: Data Preprocessing and Feature Engineering
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001, debug=True)
+#### **Objective**
+Clean the data and create features to enhance fraud detection.
 
-3. Docker Setup
+#### **Steps**
+1. **Preprocessing**:
+   - Convert `purchase_time` and `signup_time` to datetime: `pd.to_datetime(df['purchase_time'])`.
+   - Handle missing values (if any) by imputation or removal.
+   - Encode categorical variables (`source`, `browser`, `sex`) using one-hot encoding.
+2. **Feature Engineering**:
+   - **Time-Based Features**: Calculate time difference between signup and purchase.
+   - **Geolocation**: Convert `ip_address` to country/region using an IP-to-location mapping tool or API.
+   - **Transaction Patterns**: Count transactions per `device_id` to detect repeated usage (potential fraud indicator).
+   - **Aggregates**: Compute average `purchase_value` per user or device.
 
-The Flask app is packaged within a Docker container for easy deployment. Below is the Dockerfile that sets up the environment and starts the API server.
+#### **Output**
+- A preprocessed dataset with new features saved as `processed_fraud_data.csv`.
 
-Dockerfile:
+---
 
-# Use Python as the base image
-FROM python:3.8-slim
+### Task 3: Model Development
 
-# Set working directory in the container
-WORKDIR /app
+#### **Objective**
+Build and train machine learning models to detect fraud.
 
-# Copy all files from the current directory to the /app directory in the container
-COPY . .
+#### **Steps**
+1. **Model Selection**:
+   - Choose algorithms like **Random Forest**, **XGBoost**, or **Logistic Regression** for their ability to handle imbalanced data.
+2. **Train-Test Split**:
+   - Split data into 80% training and 20% testing sets.
+3. **Training**:
+   - Train models on the engineered features, focusing on the `class` target variable.
+   - Use techniques like **SMOTE** or class weighting to handle the imbalance between fraud and non-fraud cases.
+4. **Feature Importance**:
+   - Analyze which features (e.g., time difference, geolocation) contribute most to fraud detection.
 
-# Install dependencies
-RUN pip install -r requirements.txt
+#### **Output**
+- Trained model files (e.g., `fraud_model.pkl`) saved in a `models/` folder.
 
-# Expose port 5001 for the Flask API
-EXPOSE 5001
+---
 
-# Run the Flask API when the container starts
-CMD ["python", "serve_model.py"]
+### Task 4: Model Evaluation and Improvement
 
-4. Building and Running Docker Container
+#### **Objective**
+Assess model performance and refine for better accuracy.
 
-After creating the Dockerfile, build the Docker image using the following command:
+#### **Steps**
+1. **Evaluation Metrics**:
+   - Use **precision**, **recall**, **F1-score**, and **ROC-AUC** to evaluate, prioritizing recall to catch more fraud cases.
+2. **Cross-Validation**:
+   - Perform k-fold cross-validation to ensure robustness.
+3. **Hyperparameter Tuning**:
+   - Optimize model parameters using grid search or random search.
+4. **Improvement**:
+   - Adjust features or model based on evaluation results (e.g., add more geolocation granularity).
 
-docker build -t fraud-detection-model .
+#### **Output**
+- A performance report with metrics and a finalized model.
 
-Once the build is successful, run the container using:
+---
 
-docker run -p 5001:5001 fraud-detection-model
+### Task 5: Model Deployment and Dashboard Creation
 
-This starts the Flask server inside the Docker container, exposing port 5001 for external access.
+#### **Objective**
+Deploy the fraud detection model and create a dashboard for real-time monitoring.
 
-5. Testing the API
+#### **Steps**
+1. **API Development (`app.py`)**:
+   - Build a Flask API to serve fraud data from `data/fraud_data.csv`.
+   - Endpoints:
+     - `/api/summary`: Total transactions, fraud cases, and percentage.
+     - `/api/fraud_over_time`: Daily fraud counts.
+     - `/api/fraud_by_geography`: Fraud by country.
+     - `/api/fraud_by_device_browser`: Fraud by browser (since `device_type` isn’t available).
+   - Run on **port 5002**.
 
-To test the API, you can send a POST request from another Python script or tool like Postman or cURL.
+2. **Model Serving (`server_model.py`)**:
+   - Create a Flask API to serve model predictions.
+   - Endpoint: `/api/predict` for real-time fraud classification.
+   - Run on **port 5001**.
 
-Example Python Test Script (API_test.py):
+3. **Dashboard (`dashboard.py`)**:
+   - Use Dash to visualize fraud data from `app.py`.
+   - Graphs:
+     - **Graph 1**: Line chart of fraud trend over time.
+     - **Graph 2**: Bar chart of fraud by browser.
+     - **Graph 3**: Bar chart of fraud by region (country).
+     - **Graph 4**: Bar chart of daily fraud counts.
+   - Run on **port 5003**.
 
-import requests
+#### **Files**
+- **`app.py`**: API server for data endpoints.
+- **`server_model.py`**: Model prediction server (optional if model deployment is required).
+- **`dashboard.py`**: Dashboard for visualization.
 
-url = "http://127.0.0.1:5001/predict"
-data = {"features": [0.1, 1.2, 3.4, 5.6]}  # Adjust based on your model's expected input format
-response = requests.post(url, json=data)
-print(response.json())
+#### **Directory Structure**
+```
+project_folder/
+├── data/
+│   └── fraud_data.csv
+├── models/
+│   └── fraud_model.pkl (optional)
+├── app.py
+├── dashboard.py
+└── server_model.py
+```
 
-6. Common Issues and Troubleshooting
-	•	Port Conflicts: Ensure that port 5001 is not being used by another application. If necessary, change the port in both Dockerfile and API client script.
-	•	Model Not Loading Properly: Ensure that the model file random_forest_fraud.pkl is in the correct location and can be loaded without issues.
-	•	API Not Responding: Check the Flask app logs in the Docker container to ensure it’s running correctly and processing requests.
+#### **Running the Project**
+1. Start the API:
+   ```bash
+   python app.py
+   ```
+   - Runs on `http://localhost:5002`.
+2. Start the dashboard:
+   ```bash
+   python dashboard.py
+   ```
+   - Runs on `http://localhost:5003`.
+3. (Optional) Start the model server:
+   ```bash
+   python server_model.py
+   ```
+   - Runs on `http://localhost:5001`.
 
-7. Conclusion
+#### **Output**
+- A live dashboard at `http://localhost:5003` displaying fraud insights.
+- (Optional) A prediction API at `http://localhost:5001/api/predict`.
 
-With the Docker container running, you can send requests to the API for real-time fraud detection predictions. The model is loaded dynamically when the API starts, and you can scale and deploy the container as needed.
+---
 
-Requirements
-	•	Python 3.8+
-	•	Flask
-	•	scikit-learn
-	•	joblib
-	•	Docker
+## Conclusion
 
-Requirements File (requirements.txt):
-
-flask
-scikit-learn
-joblib
-
-Next Steps
-	•	Explore how to improve model performance or update it periodically.
-	•	Implement logging and monitoring for the API.
-	•	Deploy the API to a cloud platform for scalability.
-
-This Markdown will properly render the headings, code blocks, and sections in a readable way in any Jupyter notebook or Markdown renderer.
+This project fulfills Adey Innovations Inc.’s need for a robust fraud detection system by leveraging data analysis, machine learning, and real-time monitoring. The combination of preprocessed transaction data, trained models, and an interactive dashboard ensures **accurate fraud detection**, **enhanced security**, and **customer trust**, aligning with the company’s goals in the financial technology sector.
